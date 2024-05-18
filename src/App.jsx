@@ -18,12 +18,47 @@ const useField = (type) => {
 const useCountry = (name) => {
   const [country, setCountry] = useState(null)
 
-  useEffect(() => {})
+  const returnFoundCountry = (data) => {
+    return( {found:true,
+       data: {name: data.name.common,
+            capital: data.capital[0],
+            population: data.population,
+            flag: data.flags.png
+        }} )
 
+  }
+
+  useEffect(() => {
+    const  fetchData = async (name) => {
+      try {
+      //console.log(name)
+      const response = await axios.get(`https://studies.cs.helsinki.fi/restcountries/api/name/${name}`)
+      setCountry(returnFoundCountry(response.data))
+      console.log(`response received:`, response)
+      console.log("country set",returnFoundCountry(response.data))
+      return response
+      }
+      catch(err) {
+        
+      if (err.request.status==404) {
+      setCountry({found:false})
+      }
+      else {
+        console.log(err)
+      }
+
+      }
+    }
+    
+    const response = fetchData(name)
+    
+
+  }, [name])
   return country
 }
 
 const Country = ({ country }) => {
+  //console.log("country in Country component", country)
   if (!country) {
     return null
   }
